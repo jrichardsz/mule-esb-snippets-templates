@@ -1,0 +1,1 @@
+# mule-esb-usefull-templates
