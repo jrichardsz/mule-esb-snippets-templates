@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/current/mule-stdio.xsd
+http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/3.6/mule-stdio.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/3.6/mule.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd" version="EE-3.6.1">
+
+	<stdio:connector name="stdioConnector"
+		messageDelayTime="1234" outputMessage="abc" promptMessage="Press [ENTER] to start..."
+		doc:name="STDIO" />
+
+	<flow name="flow">
+		<stdio:inbound-endpoint system="IN" connector-ref="stdioConnector" doc:name="STDIO"/>
+        <logger message="generating #[payload] files" level="INFO" doc:name="Logger"/>
+        <scripting:component doc:name="xml example">
+            <scripting:script engine="Groovy"><![CDATA[xml = 
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>                             "+
+"<Response xmlns=\"\">                                                  "+
+"<ProgressResult xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"> "+
+"<ErrorMessage>error   </ErrorMessage>                                  "+
+"<IsSuccessful>false</IsSuccessful>                                     "+
+"</ProgressResult>                                                      "+
+"</ProgressResponse>                                                    ";
+
+return xml]]></scripting:script>
+        </scripting:component>
+        <scripting:component doc:name="json builder">
+            <scripting:script engine="Groovy"><![CDATA[def jsonBuilder = new groovy.json.JsonBuilder()
+jsonBuilder(
+    IsSuccessful: Util.getTagValue(payload,"IsSuccessful"),
+    ErrorMessage: Util.getTagValue(payload,"ErrorMessage")
+)
+
+return jsonBuilder.toPrettyString()]]></scripting:script>
+        </scripting:component>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+
+	</flow>
+</mule>
