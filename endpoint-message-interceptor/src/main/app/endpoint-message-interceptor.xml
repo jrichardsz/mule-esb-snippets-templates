@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		
     <flow name="enpoint-message-listenerFlow">
 		<stdio:inbound-endpoint system="IN" connector-ref="stdioConnector" doc:name="STDIO">
-<!-- 			<custom-processor class="org.jrichardsz.template.mule.EndpointMessageInterceptor"></custom-processor> -->
+			<custom-processor class="org.jrichardsz.template.mule.EndpointMessageInterceptor"></custom-processor>
 		</stdio:inbound-endpoint>
         <set-variable variableName="number_cars" value="#[payload]" doc:name="save # cars to buy"/>
         <scripting:component doc:name="create_car">
@@ -44,7 +44,7 @@ println "purchased cars : " + number_cars_string]]></scripting:script>
         <set-payload value="Subtotal $875.00;Total $875.00;Amount Paid $0.00;Balance Due  $875.00" doc:name="create invoice"/>
         
 		<file:outbound-endpoint path="D:\opt" outputPattern="invoice.txt"  responseTimeout="10000" doc:name="invoice report">
-<!-- 			<custom-processor class="org.jrichardsz.template.mule.EndpointMessageInterceptor"></custom-processor>		 -->
+			<custom-processor class="org.jrichardsz.template.mule.EndpointMessageInterceptor"></custom-processor>
 		</file:outbound-endpoint>
            
     </flow>
