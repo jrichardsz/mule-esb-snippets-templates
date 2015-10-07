@@ -4,6 +4,7 @@ This project contains a simple example of : how intercept all components in a fl
 
 ##Log mule app without interceptor :
 
+```log
 Enter number of cars to purchase: 2
 >>> Start buying car... 
    __     
@@ -14,6 +15,7 @@ Enter number of cars to purchase: 2
 /o____o_\
 
 purchased cars : 2
+```
 
 ##Log mule app with interceptor :
 
