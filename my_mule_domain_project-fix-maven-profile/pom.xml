@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mycompany</groupId>
+	<artifactId>my_mule_domain_project-fix-maven-profile</artifactId>
+	<packaging>mule-domain</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>my_mule_domain_project-fix-maven-profile</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-domain-maven-plugin</artifactId>
+				<version>1.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<copyToDomainsDirectory>false</copyToDomainsDirectory>
+					<resourcesDirectory>${project.basedir}/target/classes</resourcesDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources/${resource.dir}</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>env1/</exclude>
+					<exclude>env2/</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>env1</id>
+			<activation>
+				<property>
+					<name>target.env1</name>
+					<value>env1</value>
+				</property>
+			</activation>
+			<properties>
+				<resource.dir>env1</resource.dir>
+			</properties>
+		</profile>
+		<profile>
+			<id>env2</id>
+			<activation>
+				<property>
+					<name>target.env2</name>
+					<value>env2</value>
+				</property>
+			</activation>
+			<properties>
+				<resource.dir>env2</resource.dir>
+			</properties>
+		</profile>
+	</profiles>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>mulesoft-release</id>
+			<name>mulesoft release repository</name>
+			<layout>default</layout>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+</project>
