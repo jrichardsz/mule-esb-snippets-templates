@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.7.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/current/mule-stdio.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+    
+    <stdio:connector name="stdio-conector"	messageDelayTime="1234" outputMessage="abc" promptMessage="Press [ENTER] to start..."
+		doc:name="STDIO" />
+    <flow name="simple-xml-to-jsonFlow">
+        <file:inbound-endpoint path="F:\prueba" responseTimeout="10000" doc:name="leer xml" >
+            <file:filename-regex-filter pattern="prueba.txt" caseSensitive="true"/>
+        </file:inbound-endpoint>
+        
+        <file:file-to-string-transformer doc:name="File to String" mimeType="text/plain"/>
+        
+        <logger level="INFO" doc:name="Logger" message="El html ingresado es: #[payload]"/>
+        
+        <json:xml-to-json-transformer doc:name="XML to JSON"/>
+        
+        <logger message="el json es: #[payload] y  #[message] " level="INFO" doc:name="Logger"/>
+    </flow>
+ 
+
+</mule>
