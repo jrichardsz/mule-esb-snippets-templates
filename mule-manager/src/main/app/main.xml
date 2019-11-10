@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+
+	<context:property-placeholder location="application.properties" />
+
+	<http:listener-config name="HTTP_Listener_Configuration"
+		host="0.0.0.0" port="${manager.port}" basePath="/manager"
+		doc:name="HTTP Listener Configuration" />
+
+	<configuration doc:name="Configuration">
+		<expression-language autoResolveVariables="true">
+			<import name="FileUtils" class="org.apache.commons.io.FileUtils" />
+		</expression-language>
+	</configuration>
+
+
+	<flow name="mainFlow">
+		<http:listener config-ref="HTTP_Listener_Configuration"
+			path="/deploy" doc:name="HTTP" />
+		<logger message="incoming request: #[payload]" level="INFO"
+			doc:name="Logger" />
+
+		<scripting:transformer doc:name="file transformer"
+			mimeType="application/csv">
+			<scripting:script engine="Groovy"
+				file="scripts/inputstreamToFile.groovy">
+				<property key="mule_home" value="${mule.home}" />
+				<property key="extension" value="${deployable.file.extension}" />
+			</scripting:script>
+		</scripting:transformer>
+		<scripting:transformer doc:name="success response">
+			<scripting:script engine="Groovy"
+				file="scripts/successResponse.groovy">
+			</scripting:script>
+		</scripting:transformer>
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+		<catch-exception-strategy doc:name="Catch Exception Strategy">
+			<scripting:transformer doc:name="ErrorResponse">
+				<scripting:script engine="Groovy"
+					file="scripts/errorResponse.groovy">
+				</scripting:script>
+			</scripting:transformer>
+			<json:object-to-json-transformer
+				doc:name="Object to JSON" />
+			<set-property propertyName="http.status" value="404"
+				doc:name="Property" />
+		</catch-exception-strategy>
+	</flow>
+</mule>
