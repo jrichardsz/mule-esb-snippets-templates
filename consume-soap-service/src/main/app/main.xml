@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd">
+
+	<context:property-placeholder location="application.properties" />
+
+	<http:listener-config name="HTTP_Listener_Configuration"
+		host="0.0.0.0" port="8081" basePath="/sap" doc:name="HTTP Listener Configuration" />
+
+	<spring:beans>
+		<spring:bean id="sapGetCompanyOperationComponent" name="sapGetCompanyOperationComponent"
+			class="org.ieduca.sap.client.SapGetCompanyOperationComponent" />
+		<spring:bean id="simpleHttpSoapClient" name="simpleHttpSoapClient"
+			class="org.jrichardsz.soapeasier.SimpleHttpSoapClient" init-method="configure" >
+			<spring:property name="serviceUrl" value="${sap.service.url}" />
+			<spring:property name="soapAction" value="${sap.service.soap.action.get.company}" />
+			<spring:property name="contentType" value="text/xml; charset=utf-8" />
+			<spring:property name="skipCertificateValidation" value="${sap.service.skip.ssl.validation}" />
+			<spring:property name="allowedStringHostnames" value="${sap.service.skip.ssl.hosts}" />
+			<spring:property name="basicAuthUser" value="${sap.service.user}" />
+			<spring:property name="basicAuthPassword" value="${sap.service.password}" />
+		</spring:bean>
+	</spring:beans>
+
+</mule>
