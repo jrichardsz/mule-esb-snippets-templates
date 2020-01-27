@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" basePath="/post" doc:name="HTTP Listener Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" password="secret" database="parallel" doc:name="MySQL Configuration"/>
+    <flow name="parallel-procesing-demoFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+        <logger message="START" level="INFO" doc:name="Logger"/>
+        <logger message="#['input:' + payload.class]" level="INFO" doc:name="Logger"/>      
+        <json:json-to-object-transformer doc:name="JSON to Object" returnClass="java.util.ArrayList"/>
+        <logger message="#['transformed to:' + payload.class]" level="INFO" doc:name="Logger"/>
+        <collection-splitter doc:name="Collection Splitter"/>
+        <logger message="insert row :#[payload.lastname]" level="INFO" doc:name="start parallel insert"/>
+        <db:insert config-ref="MySQL_Configuration" doc:name="insert in Database">
+            <db:parameterized-query><![CDATA[INSERT INTO `employee`(name,lastname,job) VALUES (#[payload.name], #[payload.lastname], #[payload.job])]]></db:parameterized-query>
+        </db:insert>
+        <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
+        <logger message="FINISH" level="INFO" doc:name="Logger"/>
+        <scripting:transformer doc:name="Groovy">
+            <scripting:script engine="Groovy"><![CDATA[def map = [name: "Jerry", age: 42, city: "New York"];
+return map;]]></scripting:script>
+        </scripting:transformer>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>
+</mule>
